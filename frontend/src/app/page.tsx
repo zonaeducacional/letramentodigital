@@ -2,61 +2,7 @@ import Link from 'next/link'
 
 export default function Home() {
   return (
-    <div className="w-full">
-      {/* Header Navigation */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
-        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary-600 to-primary-700 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold">EM</span>
-            </div>
-            <span className="font-bold text-lg hidden sm:inline">EducaMídia</span>
-          </div>
-
-          <div className="hidden md:flex items-center gap-8">
-            <Link
-              href="/entender"
-              className="text-gray-600 hover:text-primary-600 transition-colors"
-            >
-              Entender
-            </Link>
-            <Link
-              href="/planejar"
-              className="text-gray-600 hover:text-primary-600 transition-colors"
-            >
-              Planejar
-            </Link>
-            <Link
-              href="/recursos"
-              className="text-gray-600 hover:text-primary-600 transition-colors"
-            >
-              Recursos
-            </Link>
-            <Link
-              href="/formacao"
-              className="text-gray-600 hover:text-primary-600 transition-colors"
-            >
-              Formação
-            </Link>
-            <Link
-              href="/comunidade"
-              className="text-gray-600 hover:text-primary-600 transition-colors"
-            >
-              Comunidade
-            </Link>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Link href="/login" className="btn-secondary text-sm">
-              Login
-            </Link>
-            <Link href="/cadastro" className="btn-primary text-sm">
-              Cadastro
-            </Link>
-          </div>
-        </nav>
-      </header>
-
+    <>
       {/* Hero Section */}
       <section className="relative bg-gradient-to-b from-primary-50 to-white py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -79,12 +25,12 @@ export default function Home() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <button className="btn-primary px-6 py-3">
+                <Link href="/cadastro" className="btn-primary px-6 py-3 text-center">
                   Comece Agora
-                </button>
-                <button className="btn-secondary px-6 py-3">
+                </Link>
+                <Link href="/entender" className="btn-secondary px-6 py-3 text-center">
                   Saiba Mais
-                </button>
+                </Link>
               </div>
 
               <div className="flex items-center gap-6 pt-8 border-t border-gray-200">
@@ -131,34 +77,39 @@ export default function Home() {
                 title: 'Entender',
                 description: 'Fundamentos, marco legal e framework conceitual',
                 color: 'from-blue-500/10 to-blue-600/10',
+                link: '/entender'
               },
               {
                 icon: '📋',
                 title: 'Planejar',
                 description: 'Gerador de situações didáticas e planos prontos',
                 color: 'from-green-500/10 to-green-600/10',
+                link: '/planejar'
               },
               {
                 icon: '🎬',
                 title: 'Recursos',
                 description: 'Midiateca, ferramentas e materiais de apoio',
                 color: 'from-purple-500/10 to-purple-600/10',
+                link: '/recursos'
               },
               {
                 icon: '🎓',
                 title: 'Formação',
                 description: 'Trilhas de aprendizagem e certificações',
                 color: 'from-orange-500/10 to-orange-600/10',
+                link: '/formacao'
               },
             ].map((item) => (
-              <div
+              <Link
+                href={item.link}
                 key={item.title}
-                className={`card p-6 bg-gradient-to-br ${item.color} hover:scale-105 transition-transform cursor-pointer`}
+                className={`card p-6 bg-gradient-to-br ${item.color} hover:scale-105 transition-transform cursor-pointer block`}
               >
                 <div className="text-4xl mb-4">{item.icon}</div>
                 <h3 className="font-semibold text-gray-900 mb-2">{item.title}</h3>
                 <p className="text-sm text-gray-600">{item.description}</p>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -194,15 +145,15 @@ export default function Home() {
               <div
                 key={item.date}
                 className={`flex gap-6 p-6 rounded-lg border-2 ${item.highlight
-                    ? 'border-primary-500 bg-primary-50'
-                    : 'border-gray-200 bg-white'
+                  ? 'border-primary-500 bg-primary-50'
+                  : 'border-gray-200 bg-white'
                   }`}
               >
                 <div className="min-w-fit">
                   <span
                     className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${item.highlight
-                        ? 'bg-primary-200 text-primary-800'
-                        : 'bg-gray-200 text-gray-800'
+                      ? 'bg-primary-200 text-primary-800'
+                      : 'bg-gray-200 text-gray-800'
                       }`}
                   >
                     {item.date}
@@ -228,68 +179,11 @@ export default function Home() {
             Explore nossos recursos, participe de nossa comunidade e implemente educação midiática
             em sua escola.
           </p>
-          <button className="bg-white text-primary-600 font-semibold px-8 py-3 rounded-lg hover:bg-primary-50 transition-colors">
+          <Link href="/cadastro" className="inline-block bg-white text-primary-600 font-semibold px-8 py-3 rounded-lg hover:bg-primary-50 transition-colors">
             Começar Agora
-          </button>
+          </Link>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">EM</span>
-                </div>
-                <span className="font-bold">EducaMídia</span>
-              </div>
-              <p className="text-gray-400 text-sm">
-                Plataforma para educação midiática na educação básica brasileira.
-              </p>
-            </div>
-
-            {['Plataforma', 'Recursos', 'Sobre'].map((section) => (
-              <div key={section}>
-                <h4 className="font-semibold mb-4">{section}</h4>
-                <ul className="space-y-2 text-gray-400 text-sm">
-                  <li>
-                    <a href="#" className="hover:text-white transition-colors">
-                      Link
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-white transition-colors">
-                      Link
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-white transition-colors">
-                      Link
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            ))}
-          </div>
-
-          <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 text-sm">© 2025 EducaMídia. Todos os direitos reservados.</p>
-            <div className="flex gap-4 text-sm text-gray-400 mt-4 md:mt-0">
-              <a href="#" className="hover:text-white transition-colors">
-                Privacidade
-              </a>
-              <a href="#" className="hover:text-white transition-colors">
-                Termos
-              </a>
-              <a href="#" className="hover:text-white transition-colors">
-                Contato
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
+    </>
   )
 }
