@@ -4,71 +4,81 @@ export default function Home() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-b from-primary-50 to-white py-20 lg:py-28">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            {/* Left Content */}
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 bg-primary-100 text-primary-700 px-4 py-2 rounded-full text-sm font-medium">
-                <span className="w-2 h-2 bg-primary-600 rounded-full"></span>
-                Novo Marco Legal - Lei 15.100/2025
-              </div>
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        {/* Video Background */}
+        <div className="absolute inset-0 z-0">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          >
+            <source src="/hero-video.mp4" type="video/mp4" />
+            {/* Fallback gradient if video fails/loads */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary-900 to-primary-800" />
+          </video>
+          {/* Dark Overlay for text readability */}
+          <div className="absolute inset-0 bg-black/60 z-10" />
+        </div>
 
-              <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
-                Transforme a educação com
-                <span className="text-primary-600"> educação midiática</span>
-              </h1>
-
-              <p className="text-lg text-gray-600 leading-relaxed">
-                Plataforma integrada para formação, planejamento e implementação da educação midiática
-                na educação básica. Alinhada à Resolução CNE 2/2025.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Link href="/cadastro" className="btn-primary px-6 py-3 text-center">
-                  Comece Agora
-                </Link>
-                <Link href="/entender" className="btn-secondary px-6 py-3 text-center">
-                  Saiba Mais
-                </Link>
-              </div>
-
-              <div className="flex items-center gap-6 pt-8 border-t border-gray-200">
-                <div>
-                  <p className="text-2xl font-bold text-primary-600">5.000+</p>
-                  <p className="text-sm text-gray-600">Professores conectados</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-primary-600">1.200+</p>
-                  <p className="text-sm text-gray-600">Planos de aula</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-primary-600">300+</p>
-                  <p className="text-sm text-gray-600">Recursos curados</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Video Placeholder */}
-            <div className="bg-gray-200 aspect-video rounded-xl flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer">
-              <div className="bg-primary-600 rounded-full p-4">
-                <svg
-                  className="w-12 h-12 text-white"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-                </svg>
-              </div>
-            </div>
+        {/* Content */}
+        <div className="relative z-20 text-center px-4 max-w-5xl mx-auto space-y-8 animate-fade-in-up">
+          <div className="inline-block animate-bounce-slow mb-4">
+            <span className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-6 py-2 rounded-full text-sm font-medium shadow-lg">
+              ✨ Novo: Inteligência Artificial na Educação
+            </span>
           </div>
+
+          <h1 className="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-primary-100 to-primary-200 tracking-tight leading-tight drop-shadow-sm">
+            Educando para a<br />
+            <span className="text-white">Cidadania Digital</span>
+            <span className="text-primary-400">.</span>
+          </h1>
+
+          <p className="text-xl md:text-2xl text-gray-200 max-w-3xl mx-auto font-light leading-relaxed">
+            A primeira plataforma brasileira que une a BNCC Computação com ferramentas de IA para criar planos de aula inovadores em segundos.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
+            <Link
+              href="/cadastro"
+              className="group relative px-8 py-4 bg-primary-600 text-white font-bold rounded-xl text-lg shadow-xl hover:bg-primary-500 hover:scale-105 transition-all duration-300"
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                Começar Agora
+                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </span>
+              <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity blur-md" />
+            </Link>
+
+            <Link
+              href="/entender"
+              className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-xl text-lg hover:bg-white/20 transition-all duration-300 flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Ver Demonstração
+            </Link>
+          </div>
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce z-20">
+          <svg className="w-6 h-6 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
         </div>
       </section>
 
       {/* Quick Access Cards */}
       <section className="py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-12">Acesso Rápido</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">Acesso Rápido</h2>
 
           <div className="grid md:grid-cols-4 gap-6">
             {[
@@ -104,7 +114,7 @@ export default function Home() {
               <Link
                 href={item.link}
                 key={item.title}
-                className={`card p-6 bg-gradient-to-br ${item.color} hover:scale-105 transition-transform cursor-pointer block`}
+                className={`card p-6 bg-gradient-to-br ${item.color} hover:scale-105 transition-transform cursor-pointer block rounded-xl border border-gray-100 shadow-sm`}
               >
                 <div className="text-4xl mb-4">{item.icon}</div>
                 <h3 className="font-semibold text-gray-900 mb-2">{item.title}</h3>
@@ -118,40 +128,37 @@ export default function Home() {
       {/* Timeline - Legal Milestones */}
       <section className="py-16 lg:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-12">Marcos Legais</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">Marcos Legais</h2>
 
-          <div className="space-y-8">
+          <div className="space-y-8 max-w-4xl mx-auto">
             {[
               {
                 date: 'Mar 2025',
                 title: 'Resolução CNE/CEB nº2',
-                description:
-                  'Estabelece a obrigatoriedade da educação digital e midiática a partir de 2026',
+                description: 'Estabelece a obrigatoriedade da educação digital e midiática a partir de 2026',
                 highlight: true,
               },
               {
                 date: 'Abr 2025',
                 title: 'Lei 15.100/2025',
-                description:
-                  'Define regras para uso de dispositivos celulares nas escolas e integração de tecnologias',
+                description: 'Define regras para uso de dispositivos celulares nas escolas e integração de tecnologias',
               },
               {
                 date: '2026',
                 title: 'Metas MEC',
-                description:
-                  'Implementação em todas as redes de educação básica brasileira',
+                description: 'Implementação em todas as redes de educação básica brasileira',
               },
             ].map((item) => (
               <div
                 key={item.date}
-                className={`flex gap-6 p-6 rounded-lg border-2 ${item.highlight
-                  ? 'border-primary-500 bg-primary-50'
-                  : 'border-gray-200 bg-white'
+                className={`flex flex-col md:flex-row gap-6 p-6 rounded-xl border ${item.highlight
+                  ? 'border-primary-500 bg-primary-50 shadow-md'
+                  : 'border-gray-200 bg-white hover:shadow-md transition-shadow'
                   }`}
               >
                 <div className="min-w-fit">
                   <span
-                    className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${item.highlight
+                    className={`inline-block px-4 py-2 rounded-full text-sm font-bold ${item.highlight
                       ? 'bg-primary-200 text-primary-800'
                       : 'bg-gray-200 text-gray-800'
                       }`}
@@ -160,8 +167,8 @@ export default function Home() {
                   </span>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">{item.title}</h3>
-                  <p className="text-gray-600 text-sm">{item.description}</p>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{item.title}</h3>
+                  <p className="text-gray-600">{item.description}</p>
                 </div>
               </div>
             ))}
@@ -170,16 +177,16 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 lg:py-20 bg-gradient-to-r from-primary-600 to-primary-700">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">
+      <section className="py-20 bg-gradient-to-r from-primary-600 to-primary-800 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <h2 className="text-3xl lg:text-5xl font-bold text-white mb-6 tracking-tight">
             Pronto para transformar sua prática?
           </h2>
-          <p className="text-lg text-primary-100 mb-8">
-            Explore nossos recursos, participe de nossa comunidade e implemente educação midiática
-            em sua escola.
+          <p className="text-lg md:text-xl text-primary-100 mb-10 max-w-2xl mx-auto">
+            Explore nossos recursos, participe de nossa comunidade e implemente educação midiática em sua escola hoje mesmo.
           </p>
-          <Link href="/cadastro" className="inline-block bg-white text-primary-600 font-semibold px-8 py-3 rounded-lg hover:bg-primary-50 transition-colors">
+          <Link href="/cadastro" className="inline-block bg-white text-primary-600 font-bold text-lg px-10 py-4 rounded-full hover:bg-gray-50 hover:shadow-lg hover:scale-105 transition-all duration-300">
             Começar Agora
           </Link>
         </div>
