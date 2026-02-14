@@ -1,7 +1,7 @@
 {
-  "/login/page": "app/login/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/recursos/page": "app/recursos/page.js",
+  "/comunidade/page": "app/comunidade/page.js",
   "/page": "app/page.js",
-  "/entender/page": "app/entender/page.js",
-  "/entender/conceitos/page": "app/entender/conceitos/page.js",
-  "/entender/glossario/page": "app/entender/glossario/page.js"
+  "/formacao/page": "app/formacao/page.js"
 }
