@@ -1,0 +1,97 @@
+import { Request, Response } from 'express'
+import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+import { z } from 'zod'
+
+const prisma = new PrismaClient()
+
+// Validation Schemas
+const registerSchema = z.object({
+    email: z.string().email(),
+    name: z.string().min(2),
+    password: z.string().min(6),
+    role: z.enum(['TEACHER', 'COORDINATOR']).optional()
+})
+
+export const register = async (req: Request, res: Response) => {
+    try {
+        const { email, name, password, role } = registerSchema.parse(req.body)
+
+        const existingUser = await prisma.user.findUnique({
+            where: { email }
+        })
+
+        if (existingUser) {
+            return res.status(400).json({ error: 'User already exists' })
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10)
+
+        const user = await prisma.user.create({
+            data: {
+                email,
+                name,
+                password: hashedPassword,
+                role: role || 'TEACHER',
+                components: JSON.stringify([]), // SQLite JSON
+                yearsTeaching: JSON.stringify([]) // SQLite JSON
+            }
+        })
+
+        const token = jwt.sign(
+            { id: user.id, role: user.role },
+            process.env.JWT_SECRET as string,
+            { expiresIn: '7d' }
+        )
+
+        const { password: _, ...userWithoutPassword } = user
+
+        res.status(201).json({
+            user: userWithoutPassword,
+            token
+        })
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({ error: error.errors })
+        }
+        console.error(error) // Log real error
+        res.status(500).json({ error: 'Internal server error' })
+    }
+}
+
+// ... Login e GetMe não mudam lógica de banco, mas precisamos garantir types
+export const login = async (req: Request, res: Response) => {
+    try {
+        // ... same as before
+        const { email, password } = req.body // Simpler for now
+
+        const user = await prisma.user.findUnique({ where: { email } })
+
+        if (!user) return res.status(401).json({ error: 'Invalid credentials' })
+
+        const isValid = await bcrypt.compare(password, user.password)
+        if (!isValid) return res.status(401).json({ error: 'Invalid credentials' })
+
+        const token = jwt.sign(
+            { id: user.id, role: user.role },
+            process.env.JWT_SECRET as string,
+            { expiresIn: '7d' }
+        )
+
+        const { password: _, ...rest } = user
+        res.json({ user: rest, token })
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' })
+    }
+}
+
+export const getMe = async (req: Request, res: Response) => {
+    // @ts-ignore
+    const userId = req.user.id
+    const user = await prisma.user.findUnique({ where: { id: userId } })
+    if (!user) return res.status(404).json({ error: 'User not found' })
+
+    const { password: _, ...rest } = user
+    res.json(rest)
+}

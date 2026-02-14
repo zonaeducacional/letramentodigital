@@ -1,0 +1,20 @@
+{
+  "name": "portal-educacao-midiatica",
+  "version": "0.1.0",
+  "description": "Portal web para implementação de educação midiática na educação básica brasileira",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=frontend\" \"npm run dev --workspace=backend\"",
+    "build": "npm run build --workspace=frontend && npm run build --workspace=backend",
+    "start": "concurrently \"npm start --workspace=frontend\" \"npm start --workspace=backend\"",
+    "test": "npm test --workspaces",
+    "lint": "npm run lint --workspaces"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

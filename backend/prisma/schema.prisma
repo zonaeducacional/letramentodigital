@@ -1,0 +1,256 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// User Models
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  password      String
+  role          String   @default("TEACHER") // ENUM REMOVIDO
+  profileImage  String?
+  // Arrays primitivos não suportados no SQLite. 
+  // Solução simples: armazenar como string JSON ou remover
+  // Para MVP rápido: remover campos não essenciais ou converter em string
+  components    String   @default("[]") // JSON string field
+  yearsTeaching String   @default("[]") // JSON string field
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  planosDidaticos  PlanoDidatico[]
+  comentarios      Comentario[]
+  forumPosts       PostForum[]
+  trilhasProgresso TrilhaProgresso[]
+
+  @@map("users")
+}
+
+// Educational Content Models
+model Habilidade {
+  id                  String   @id @default(cuid())
+  codigo              String   @unique
+  descricao           String   // @db.Text não suportado
+  eixo                String   // ENUM REMOVIDO
+  conceituoCritico    String   // ENUM REMOVIDO
+  anoEscolar          Int
+  componente          String
+  objetosConhecimento String   @default("[]") // JSON string field
+
+  planos PlanoDidatico[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([anoEscolar])
+  @@index([componente])
+  @@map("habilidades")
+}
+
+model PlanoDidatico {
+  id                String   @id @default(cuid())
+  titulo            String
+  descricao         String   // @db.Text não suportado
+  anoEscolar        Int
+  componentes       String   @default("[]") // JSON string
+  duracao           Int
+  // Relação N-N no SQLite requer tabela implícita OK, 
+  // mas aqui tentava array de Enum. Vamos mudar.
+  eixos             String   @default("[]") // JSON string de eixos
+  
+  objetivos         String   @default("[]") // JSON string
+  problematizacao   String?  // @db.Text não suportado
+  desenvolvimento   String?  // @db.Text não suportado
+  producaoAvaliacao String?  // @db.Text não suportado
+  
+  autor      User     @relation(fields: [autorId], references: [id], onDelete: Cascade)
+  autorId    String
+  
+  compartilhado Boolean @default(false)
+  curtidas      Int     @default(0)
+  
+  habilidades Habilidade[]
+  recursos    Recurso[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([autorId])
+  @@index([anoEscolar])
+  @@map("planos_didaticos")
+}
+
+model Recurso {
+  id                    String   @id @default(cuid())
+  titulo                String
+  tipo                  String   // ENUM REMOVIDO
+  descricao             String   
+  url                   String?
+  anoRecomendado        Int?
+  eixo                  String   // ENUM REMOVIDO
+  tags                  String   @default("[]") // JSON string
+  roteiros              String?  
+  perguntasOrientadoras String   @default("[]") // JSON string
+  
+  planos PlanoDidatico[]
+  atividades Atividade[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tipo])
+  @@index([eixo])
+  @@map("recursos")
+}
+
+model Atividade {
+  id          String   @id @default(cuid())
+  titulo      String
+  descricao   String
+  duracao     Int
+  metodologia String
+  instrucoes  String   
+  
+  recurso     Recurso? @relation(fields: [recursoId], references: [id], onDelete: Cascade)
+  recursoId   String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("atividades")
+}
+
+// Learning & Formation Models
+model TrilhaAprendizagem {
+  id          String   @id @default(cuid())
+  titulo      String
+  descricao   String   
+  nivel       String   // ENUM REMOVIDO
+  duracao     Int
+  certificado Boolean  @default(true)
+  
+  modulos    Modulo[]
+  progressos TrilhaProgresso[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("trilhas_aprendizagem")
+}
+
+model Modulo {
+  id        String   @id @default(cuid())
+  titulo    String
+  descricao String   
+  conteudo  String   
+  duracao   Int
+  ordem     Int
+  
+  trilha    TrilhaAprendizagem @relation(fields: [trilhaId], references: [id], onDelete: Cascade)
+  trilhaId  String
+  quiz      Quiz?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([trilhaId])
+  @@map("modulos")
+}
+
+model Quiz {
+  id              String   @id @default(cuid())
+  pontuacaoMinima Int      @default(70)
+  
+  modulo    Modulo   @relation(fields: [moduloId], references: [id], onDelete: Cascade)
+  moduloId  String   @unique
+  questoes  Questao[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("quizzes")
+}
+
+model Questao {
+  id              String   @id @default(cuid())
+  titulo          String
+  tipo            String   // ENUM REMOVIDO
+  opcoes          String   @default("[]") // JSON string
+  respostaCorreta String?
+  
+  quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  quizId    String
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([quizId])
+  @@map("questoes")
+}
+
+model TrilhaProgresso {
+  id        String   @id @default(cuid())
+  usuario   User     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  usuarioId String
+  trilha    TrilhaAprendizagem @relation(fields: [trilhaId], references: [id], onDelete: Cascade)
+  trilhaId  String
+  
+  percentualConcluido Int     @default(0)
+  completado          Boolean @default(false)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([usuarioId, trilhaId])
+  @@map("trilha_progressos")
+}
+
+// Community Models
+model PostForum {
+  id        String   @id @default(cuid())
+  titulo    String
+  conteudo  String   
+  categoria String   // ENUM REMOVIDO
+  
+  autor     User     @relation(fields: [autorId], references: [id], onDelete: Cascade)
+  autorId   String
+  
+  curtidas  Int      @default(0)
+  comentarios Comentario[]
+  tags      String   @default("[]") // JSON string
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([autorId])
+  @@index([categoria])
+  @@map("post_forum")
+}
+
+model Comentario {
+  id        String   @id @default(cuid())
+  conteudo  String   
+  
+  autor     User     @relation(fields: [autorId], references: [id], onDelete: Cascade)
+  autorId   String
+  
+  post      PostForum? @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String?
+  
+  respostaPara   Comentario? @relation("ComentarioRespostas", fields: [respostaParaId], references: [id], onDelete: Cascade)
+  respostaParaId String?
+  respostas      Comentario[] @relation("ComentarioRespostas")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([autorId])
+  @@index([postId])
+  @@map("comentarios")
+}
