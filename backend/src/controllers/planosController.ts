@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Eixo } from '@prisma/client'
 import { z } from 'zod'
 
 const prisma = new PrismaClient()
@@ -34,27 +34,16 @@ export const createPlano = async (req: Request, res: Response) => {
         })
 
         // Infer unique axes from selected skills
-        const eixosSet = new Set<string>()
+        const eixosSet = new Set<Eixo>()
         habilidades.forEach(h => eixosSet.add(h.eixo))
         const eixos = Array.from(eixosSet)
 
         // Create Plan
         const plano = await prisma.planoDidatico.create({
             data: {
-                titulo: planoData.titulo,
-                descricao: planoData.descricao || '',
-                anoEscolar: planoData.anoEscolar,
-                duracao: planoData.duracao,
-                problematizacao: planoData.problematizacao,
-                desenvolvimento: planoData.desenvolvimento,
-                producaoAvaliacao: planoData.producaoAvaliacao,
-
-                // SQLite: Storing arrays as JSON strings
-                componentes: JSON.stringify(planoData.componentes),
-                objetivos: JSON.stringify(planoData.objetivos),
-                eixos: JSON.stringify(eixos),
-
+                ...planoData,
                 autorId: userId,
+                eixos: eixos,
                 habilidades: {
                     connect: habilidadesIds.map(id => ({ id }))
                 }
@@ -64,15 +53,7 @@ export const createPlano = async (req: Request, res: Response) => {
             }
         })
 
-        // Parse JSON fields back to arrays for response
-        const responsePlano = {
-            ...plano,
-            componentes: JSON.parse(plano.componentes),
-            objetivos: JSON.parse(plano.objetivos),
-            eixos: JSON.parse(plano.eixos)
-        }
-
-        res.status(201).json(responsePlano)
+        res.status(201).json(plano)
     } catch (error) {
         if (error instanceof z.ZodError) {
             return res.status(400).json({ error: error.errors })
@@ -99,15 +80,7 @@ export const listPlanos = async (req: Request, res: Response) => {
             }
         })
 
-        // Parse JSON fields back to arrays
-        const formattedPlanos = planos.map(p => ({
-            ...p,
-            componentes: JSON.parse(p.componentes),
-            objetivos: JSON.parse(p.objetivos),
-            eixos: JSON.parse(p.eixos)
-        }))
-
-        res.json(formattedPlanos)
+        res.json(planos)
     } catch (error) {
         console.error(error)
         res.status(500).json({ error: 'Internal server error' })
@@ -135,14 +108,7 @@ export const getPlano = async (req: Request, res: Response) => {
             return res.status(404).json({ error: 'Plano not found' })
         }
 
-        const formattedPlano = {
-            ...plano,
-            componentes: JSON.parse(plano.componentes),
-            objetivos: JSON.parse(plano.objetivos),
-            eixos: JSON.parse(plano.eixos)
-        }
-
-        res.json(formattedPlano)
+        res.json(plano)
     } catch (error) {
         res.status(500).json({ error: 'Internal server error' })
     }

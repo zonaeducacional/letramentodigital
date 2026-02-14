@@ -14,6 +14,11 @@ const registerSchema = z.object({
     role: z.enum(['TEACHER', 'COORDINATOR']).optional()
 })
 
+const loginSchema = z.object({
+    email: z.string().email(),
+    password: z.string()
+})
+
 export const register = async (req: Request, res: Response) => {
     try {
         const { email, name, password, role } = registerSchema.parse(req.body)
@@ -34,8 +39,8 @@ export const register = async (req: Request, res: Response) => {
                 name,
                 password: hashedPassword,
                 role: role || 'TEACHER',
-                components: JSON.stringify([]), // SQLite JSON
-                yearsTeaching: JSON.stringify([]) // SQLite JSON
+                components: [],
+                yearsTeaching: []
             }
         })
 
@@ -45,6 +50,7 @@ export const register = async (req: Request, res: Response) => {
             { expiresIn: '7d' }
         )
 
+        // Remove password from response
         const { password: _, ...userWithoutPassword } = user
 
         res.status(201).json({
@@ -55,23 +61,28 @@ export const register = async (req: Request, res: Response) => {
         if (error instanceof z.ZodError) {
             return res.status(400).json({ error: error.errors })
         }
-        console.error(error) // Log real error
+        console.error(error)
         res.status(500).json({ error: 'Internal server error' })
     }
 }
 
-// ... Login e GetMe não mudam lógica de banco, mas precisamos garantir types
 export const login = async (req: Request, res: Response) => {
     try {
-        // ... same as before
-        const { email, password } = req.body // Simpler for now
+        const { email, password } = loginSchema.parse(req.body)
 
-        const user = await prisma.user.findUnique({ where: { email } })
+        const user = await prisma.user.findUnique({
+            where: { email }
+        })
 
-        if (!user) return res.status(401).json({ error: 'Invalid credentials' })
+        if (!user) {
+            return res.status(401).json({ error: 'Invalid credentials' })
+        }
 
-        const isValid = await bcrypt.compare(password, user.password)
-        if (!isValid) return res.status(401).json({ error: 'Invalid credentials' })
+        const isValidPassword = await bcrypt.compare(password, user.password)
+
+        if (!isValidPassword) {
+            return res.status(401).json({ error: 'Invalid credentials' })
+        }
 
         const token = jwt.sign(
             { id: user.id, role: user.role },
@@ -79,19 +90,36 @@ export const login = async (req: Request, res: Response) => {
             { expiresIn: '7d' }
         )
 
-        const { password: _, ...rest } = user
-        res.json({ user: rest, token })
+        const { password: _, ...userWithoutPassword } = user
+
+        res.json({
+            user: userWithoutPassword,
+            token
+        })
     } catch (error) {
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({ error: error.errors })
+        }
         res.status(500).json({ error: 'Internal server error' })
     }
 }
 
 export const getMe = async (req: Request, res: Response) => {
-    // @ts-ignore
-    const userId = req.user.id
-    const user = await prisma.user.findUnique({ where: { id: userId } })
-    if (!user) return res.status(404).json({ error: 'User not found' })
+    try {
+        // @ts-ignore - user is added by auth middleware
+        const userId = req.user.id
 
-    const { password: _, ...rest } = user
-    res.json(rest)
+        const user = await prisma.user.findUnique({
+            where: { id: userId }
+        })
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' })
+        }
+
+        const { password: _, ...userWithoutPassword } = user
+        res.json(userWithoutPassword)
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' })
+    }
 }

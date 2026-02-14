@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql" // BACK TO POSTGRESQL FOR SUPABASE
+  url      = env("DATABASE_URL")
 }
 
 // User Models
@@ -13,13 +13,10 @@ model User {
   email         String   @unique
   name          String
   password      String
-  role          String   @default("TEACHER") // ENUM REMOVIDO
+  role          Role     @default(TEACHER)
   profileImage  String?
-  // Arrays primitivos não suportados no SQLite. 
-  // Solução simples: armazenar como string JSON ou remover
-  // Para MVP rápido: remover campos não essenciais ou converter em string
-  components    String   @default("[]") // JSON string field
-  yearsTeaching String   @default("[]") // JSON string field
+  components    String[] // Back to array
+  yearsTeaching Int[]    // Back to array
   
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -32,16 +29,22 @@ model User {
   @@map("users")
 }
 
+enum Role {
+  TEACHER
+  COORDINATOR
+  ADMIN
+}
+
 // Educational Content Models
 model Habilidade {
   id                  String   @id @default(cuid())
   codigo              String   @unique
-  descricao           String   // @db.Text não suportado
-  eixo                String   // ENUM REMOVIDO
-  conceituoCritico    String   // ENUM REMOVIDO
+  descricao           String   @db.Text
+  eixo                Eixo
+  conceituoCritico    ConceituoCritico
   anoEscolar          Int
   componente          String
-  objetosConhecimento String   @default("[]") // JSON string field
+  objetosConhecimento String[]
 
   planos PlanoDidatico[]
 
@@ -53,21 +56,32 @@ model Habilidade {
   @@map("habilidades")
 }
 
+enum Eixo {
+  LER
+  ESCREVER
+  PARTICIPAR
+}
+
+enum ConceituoCritico {
+  LINGUAGEM
+  REPRESENTACAO
+  PRODUCAO
+  PUBLICO
+}
+
 model PlanoDidatico {
   id                String   @id @default(cuid())
   titulo            String
-  descricao         String   // @db.Text não suportado
+  descricao         String   @db.Text
   anoEscolar        Int
-  componentes       String   @default("[]") // JSON string
+  componentes       String[]
   duracao           Int
-  // Relação N-N no SQLite requer tabela implícita OK, 
-  // mas aqui tentava array de Enum. Vamos mudar.
-  eixos             String   @default("[]") // JSON string de eixos
+  eixos             Eixo[]
   
-  objetivos         String   @default("[]") // JSON string
-  problematizacao   String?  // @db.Text não suportado
-  desenvolvimento   String?  // @db.Text não suportado
-  producaoAvaliacao String?  // @db.Text não suportado
+  objetivos         String[]
+  problematizacao   String?  @db.Text
+  desenvolvimento   String?  @db.Text
+  producaoAvaliacao String?  @db.Text
   
   autor      User     @relation(fields: [autorId], references: [id], onDelete: Cascade)
   autorId    String
@@ -89,14 +103,14 @@ model PlanoDidatico {
 model Recurso {
   id                    String   @id @default(cuid())
   titulo                String
-  tipo                  String   // ENUM REMOVIDO
-  descricao             String   
+  tipo                  TipoRecurso
+  descricao             String   @db.Text
   url                   String?
   anoRecomendado        Int?
-  eixo                  String   // ENUM REMOVIDO
-  tags                  String   @default("[]") // JSON string
-  roteiros              String?  
-  perguntasOrientadoras String   @default("[]") // JSON string
+  eixo                  Eixo
+  tags                  String[]
+  roteiros              String?  @db.Text
+  perguntasOrientadoras String[]
   
   planos PlanoDidatico[]
   atividades Atividade[]
@@ -109,13 +123,22 @@ model Recurso {
   @@map("recursos")
 }
 
+enum TipoRecurso {
+  VIDEO
+  ARTICULO
+  INFOGRAFICO
+  FERRAMENTA
+  DINAMICA
+  AVALIACAO
+}
+
 model Atividade {
   id          String   @id @default(cuid())
   titulo      String
-  descricao   String
+  descricao   String   @db.Text
   duracao     Int
   metodologia String
-  instrucoes  String   
+  instrucoes  String   @db.Text
   
   recurso     Recurso? @relation(fields: [recursoId], references: [id], onDelete: Cascade)
   recursoId   String?
@@ -130,8 +153,8 @@ model Atividade {
 model TrilhaAprendizagem {
   id          String   @id @default(cuid())
   titulo      String
-  descricao   String   
-  nivel       String   // ENUM REMOVIDO
+  descricao   String   @db.Text
+  nivel       Nivel
   duracao     Int
   certificado Boolean  @default(true)
   
@@ -144,11 +167,17 @@ model TrilhaAprendizagem {
   @@map("trilhas_aprendizagem")
 }
 
+enum Nivel {
+  BASICO
+  INTERMEDIARIO
+  AVANCADO
+}
+
 model Modulo {
   id        String   @id @default(cuid())
   titulo    String
-  descricao String   
-  conteudo  String   
+  descricao String   @db.Text
+  conteudo  String   @db.Text
   duracao   Int
   ordem     Int
   
@@ -180,8 +209,8 @@ model Quiz {
 model Questao {
   id              String   @id @default(cuid())
   titulo          String
-  tipo            String   // ENUM REMOVIDO
-  opcoes          String   @default("[]") // JSON string
+  tipo            TipoQuestao
+  opcoes          String[]
   respostaCorreta String?
   
   quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
@@ -192,6 +221,11 @@ model Questao {
 
   @@index([quizId])
   @@map("questoes")
+}
+
+enum TipoQuestao {
+  MULTIPLA
+  DISCURSIVA
 }
 
 model TrilhaProgresso {
@@ -215,15 +249,15 @@ model TrilhaProgresso {
 model PostForum {
   id        String   @id @default(cuid())
   titulo    String
-  conteudo  String   
-  categoria String   // ENUM REMOVIDO
+  conteudo  String   @db.Text
+  categoria Categoria
   
   autor     User     @relation(fields: [autorId], references: [id], onDelete: Cascade)
   autorId   String
   
   curtidas  Int      @default(0)
   comentarios Comentario[]
-  tags      String   @default("[]") // JSON string
+  tags      String[]
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -233,9 +267,16 @@ model PostForum {
   @@map("post_forum")
 }
 
+enum Categoria {
+  DUVIDAS
+  PRATICAS
+  CASOS
+  DESAFIOS
+}
+
 model Comentario {
   id        String   @id @default(cuid())
-  conteudo  String   
+  conteudo  String   @db.Text
   
   autor     User     @relation(fields: [autorId], references: [id], onDelete: Cascade)
   autorId   String

@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Eixo, ConceituoCritico } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -8,76 +8,79 @@ const habilidadesData = [
   {
     codigo: 'EF06CO10',
     descricao: 'Analisar o consumo de tecnologia, obsolescência e sustentabilidade',
-    eixo: 'LER',
-    conceituoCritico: 'REPRESENTACAO',
+    eixo: Eixo.LER, // Análise Crítica
+    conceituoCritico: ConceituoCritico.REPRESENTACAO,
     anoEscolar: 6,
     componente: 'Ciências',
-    objetosConhecimento: JSON.stringify(['Obsolescência programada', 'lixo eletrônico', 'consumo consciente'])
+    objetosConhecimento: ['Obsolescência programada', 'lixo eletrônico', 'consumo consciente']
   },
   {
     codigo: 'EF-AC1',
     descricao: 'Refletir sobre autoria e propósito de mensagens midiáticas',
-    eixo: 'LER',
-    conceituoCritico: 'LINGUAGEM',
+    eixo: Eixo.LER,
+    conceituoCritico: ConceituoCritico.LINGUAGEM,
     anoEscolar: 6,
     componente: 'Língua Portuguesa',
-    objetosConhecimento: JSON.stringify(['Propósitos das mídias', 'emissor/receptor/prossumidor', 'autoria'])
+    objetosConhecimento: ['Propósitos das mídias', 'emissor/receptor/prossumidor', 'autoria']
   },
   {
     codigo: 'EF-LI1',
     descricao: 'Avaliar confiabilidade, compreender fake news e recorrer a múltiplas fontes',
-    eixo: 'LER',
-    conceituoCritico: 'REPRESENTACAO',
+    eixo: Eixo.LER,
+    conceituoCritico: ConceituoCritico.REPRESENTACAO,
     anoEscolar: 6,
     componente: 'História',
-    objetosConhecimento: JSON.stringify(['Fontes confiáveis', 'fake news', 'verificação'])
+    objetosConhecimento: ['Fontes confiáveis', 'fake news', 'verificação']
   },
   {
     codigo: 'EF-AE1',
     descricao: 'Criar mensagens midiáticas sobre temas das juventudes',
-    eixo: 'ESCREVER',
-    conceituoCritico: 'PRODUCAO',
+    eixo: Eixo.ESCREVER, // Autoexpressão
+    conceituoCritico: ConceituoCritico.PRODUCAO,
     anoEscolar: 6,
     componente: 'Artes',
-    objetosConhecimento: JSON.stringify(['Protótipos', 'pautas juvenis', 'linguagem visual digital'])
+    objetosConhecimento: ['Protótipos', 'pautas juvenis', 'linguagem visual digital']
   },
 
   // 7º ANO
   {
     codigo: 'EF-AC2',
     descricao: 'Analisar criticamente imagens, gráficos e mapas, identificando vieses',
-    eixo: 'LER',
-    conceituoCritico: 'REPRESENTACAO',
+    eixo: Eixo.LER,
+    conceituoCritico: ConceituoCritico.REPRESENTACAO,
     anoEscolar: 7,
     componente: 'Matemática/Geografia',
-    objetosConhecimento: JSON.stringify(['Leitura visual', 'pontos de vista', 'viés implícito/explícito'])
+    objetosConhecimento: ['Leitura visual', 'pontos de vista', 'viés implícito/explícito']
   },
 
   // 8º ANO
   {
     codigo: 'EF08CO11',
     descricao: 'Avaliar precisão, relevância e vieses em fontes eletrônicas',
-    eixo: 'LER',
-    conceituoCritico: 'REPRESENTACAO',
+    eixo: Eixo.LER,
+    conceituoCritico: ConceituoCritico.REPRESENTACAO,
     anoEscolar: 8,
     componente: 'Língua Portuguesa',
-    objetosConhecimento: JSON.stringify(['Tipos de fonte', 'critérios de confiabilidade', 'vieses'])
+    objetosConhecimento: ['Tipos de fonte', 'critérios de confiabilidade', 'vieses']
   },
 
   // 9º ANO
   {
     codigo: 'EF-AC4',
     descricao: 'Identificar manipulação em propaganda e teorias conspiratórias',
-    eixo: 'LER',
-    conceituoCritico: 'REPRESENTACAO',
+    eixo: Eixo.LER,
+    conceituoCritico: ConceituoCritico.REPRESENTACAO,
     anoEscolar: 9,
     componente: 'História',
-    objetosConhecimento: JSON.stringify(['Propaganda', 'teorias conspiratórias', 'negacionismo'])
+    objetosConhecimento: ['Propaganda', 'teorias conspiratórias', 'negacionismo']
   },
 ]
 
 async function main() {
-  console.log('🌱 Starting SQLite seed...')
+  console.log('🌱 Starting PostgreSQL seed...')
+
+  // Limpar habilidades existentes primeiro (opcional, cuidado em prod)
+  // await prisma.habilidade.deleteMany()
 
   for (const h of habilidadesData) {
     const existing = await prisma.habilidade.findUnique({
@@ -99,14 +102,17 @@ async function main() {
   const existingAdmin = await prisma.user.findUnique({ where: { email: adminEmail } })
 
   if (!existingAdmin) {
+    // Em um app real, use bcrypt para hash, aqui é só exemplo, o controller fará o hash
+    // Mas para seed direto, precisamos simular um hash ou permitir login sem hash no dev (não recomendado)
+    // Vamos assumir que criaremos via API depois, ou criar um usuário com senha "admin123" (hash simulado)
     await prisma.user.create({
       data: {
         email: adminEmail,
         name: 'Administrador',
-        password: '$2a$10$X7V.j5T.tFk.qW.zX.yU.eO.pQ.rS.tU.vW.xY.z',
+        password: '$2a$10$X7V.j5T.tFk.qW.zX.yU.eO.pQ.rS.tU.vW.xY.z', // Hash mock para "admin123" (placeholder)
         role: 'ADMIN',
-        components: JSON.stringify(['Tecnologia']),
-        yearsTeaching: JSON.stringify([2025])
+        components: ['Tecnologia'],
+        yearsTeaching: [2025]
       }
     })
     console.log(`✅ Admin user created: ${adminEmail}`)
