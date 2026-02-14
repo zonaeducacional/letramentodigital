@@ -17,57 +17,16 @@ export default function Footer() {
                         </p>
                     </div>
 
-                    <div>
-                        <h4 className="font-semibold mb-4">Plataforma</h4>
-                        <ul className="space-y-2 text-gray-400 text-sm">
-                            <li>
-                                <Link href="/entender" className="hover:text-white transition-colors">
-                                    Entender
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/planejar" className="hover:text-white transition-colors">
-                                    Planejar
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/recursos" className="hover:text-white transition-colors">
-                                    Recursos
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <h4 className="font-semibold mb-4">Comunidade</h4>
-                        <ul className="space-y-2 text-gray-400 text-sm">
-                            <li>
-                                <Link href="/formacao" className="hover:text-white transition-colors">
-                                    Formação
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/comunidade" className="hover:text-white transition-colors">
-                                    Fórum
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <h4 className="font-semibold mb-4">Sobre</h4>
-                        <ul className="space-y-2 text-gray-400 text-sm">
-                            <li>
-                                <Link href="#" className="hover:text-white transition-colors">
-                                    O Projeto
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="#" className="hover:text-white transition-colors">
-                                    Contato
-                                </Link>
-                            </li>
-                        </ul>
+                    <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 className="font-semibold mb-4">Referências</h4>
+                            <ul className="space-y-2 text-gray-400 text-sm">
+                                <li>Letramento Digital</li>
+                                <li>Resolução CNE/CEB nº2 (2025)</li>
+                                <li>Lei nº 15.100/2025</li>
+                                <li>BNCC Computação (2022)</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
